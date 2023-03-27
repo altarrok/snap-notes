@@ -11,9 +11,33 @@ steps:
   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '.' ]
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
-  args: ['run', 'deploy', 'share-short-notes-prod', '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '--region', 'us-central1', '--allow-unauthenticated']
+- name: gcr.io/cloud-builders/npm
+  env:
+    - NODE_ENV=production
+  entrypoint: sh
+  args:
+    - "-c"
+    - |
+      wget https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.0.0/cloud-sql-proxy.linux.amd64 -O cloud-sql-proxy
+      chmod +x cloud-sql-proxy
+      ./cloud-sql-proxy --port 5432 $$CLOUD_SQL_INSTANCE_NAME & sleep 3
+      export DATABASE_URL=postgresql://$$DB_USERNAME:$$DB_PASSWORD@localhost/share-short-notes
+      npx prisma migrate deploy
+  secretEnv: ['DB_USERNAME', 'DB_PASSWORD', 'CLOUD_SQL_INSTANCE_NAME']
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: bash
+  args:
+  - '-c'
+  - 'gcloud run deploy share-short-notes-prod --image us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod --region us-central1 --allow-unauthenticated --set-cloudsql-instances $$CLOUD_SQL_INSTANCE_NAME --set-env-vars DATABASE_URL=postgresql://$$DB_USERNAME:$$DB_PASSWORD@localhost:5432/share-short-notes?host=/cloudsql/$$CLOUD_SQL_INSTANCE_NAME --set-secrets NEXTAUTH_URL=projects/746480443793/secrets/NEXTAUTH_URL/versions/latest,NEXTAUTH_SECRET=projects/746480443793/secrets/NEXTAUTH_SECRET/versions/latest,GOOGLE_CLIENT_ID=projects/746480443793/secrets/GOOGLE_CLIENT_ID/versions/latest,GOOGLE_CLIENT_SECRET=projects/746480443793/secrets/GOOGLE_CLIENT_SECRET/versions/latest'
+  secretEnv: ['DB_USERNAME', 'DB_PASSWORD', 'CLOUD_SQL_INSTANCE_NAME']
 
 images:
 - 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod'
+availableSecrets:
+  secretManager:
+  - versionName: projects/871909765266/secrets/DB_USERNAME/versions/latest
+    env: 'DB_USERNAME'
+  - versionName: projects/871909765266/secrets/DB_PASSWORD/versions/latest
+    env: 'DB_PASSWORD'
+  - versionName: projects/871909765266/secrets/CLOUD_SQL_INSTANCE_NAME/versions/latest
+    env: 'CLOUD_SQL_INSTANCE_NAME'
