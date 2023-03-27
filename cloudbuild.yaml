@@ -16,4 +16,4 @@ steps:
   args: ['run', 'deploy', 'share-short-notes-prod', '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '--region', 'us-central1']
 
 images:
-- 'us-central1-docker.pkg.dev -docker.pkg.dev/$PROJECT_ID/share-short-notes/prod'
+- 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod'
