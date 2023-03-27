@@ -8,12 +8,12 @@ steps:
   env:
   - 'SKIP_ENV_VALIDATION=1'
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'us-east1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '.' ]
+  args: [ 'build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '.' ]
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'us-east1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod']
+  args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
-  args: ['run', 'deploy', 'share-short-notes-prod', '--image', 'us-east1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '--region', 'us-east1']
+  args: ['run', 'deploy', 'share-short-notes-prod', '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod', '--region', 'us-central1']
 
 images:
-- 'us-east1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod'
+- 'us- us-central1-docker.pkg.dev -docker.pkg.dev/$PROJECT_ID/share-short-notes/prod'
