@@ -35,9 +35,9 @@ images:
 - 'us-central1-docker.pkg.dev/$PROJECT_ID/share-short-notes/prod'
 availableSecrets:
   secretManager:
-  - versionName: projects/871909765266/secrets/DB_USERNAME/versions/latest
+  - versionName: projects/746480443793/secrets/DB_USERNAME/versions/latest
     env: 'DB_USERNAME'
-  - versionName: projects/871909765266/secrets/DB_PASSWORD/versions/latest
+  - versionName: projects/746480443793/secrets/DB_PASSWORD/versions/latest
     env: 'DB_PASSWORD'
-  - versionName: projects/871909765266/secrets/CLOUD_SQL_INSTANCE_NAME/versions/latest
+  - versionName: projects/746480443793/secrets/CLOUD_SQL_INSTANCE_NAME/versions/latest
     env: 'CLOUD_SQL_INSTANCE_NAME'
