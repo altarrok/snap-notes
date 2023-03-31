@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider      = "prisma-client-js"
     binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -13,12 +13,6 @@ datasource db {
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
-}
-
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 }
 
 // Necessary for Next auth
@@ -54,6 +48,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    notes         Note[]
     accounts      Account[]
     sessions      Session[]
 }
@@ -64,4 +59,12 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Note {
+    id      String @id @default(cuid())
+    userId  String
+    title   String
+    content String
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
