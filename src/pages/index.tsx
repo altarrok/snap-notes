@@ -1,5 +1,6 @@
 import { type NextPage } from "next";
 import { useState } from "react";
+import { SignInButton } from "~/components/auth/SignInButton";
 import { SignInOutModal } from "~/components/auth/SignInOutModal";
 import { SignInOutModalContext } from "~/components/auth/SignInOutModalContext";
 import { CreateNoteWidget } from "~/components/create-note";
@@ -10,9 +11,8 @@ const Home: NextPage = () => {
   return (
     <SignInOutModalContext.Provider value={{ isSignInOutModalOpen, setIsSignInOutModalOpen }}>
       <SignInOutModal />
-      <div className="h-[50rem] w-[24rem] border-black border border-solid">
-        <CreateNoteWidget />
-      </div>
+      <CreateNoteWidget />
+      <SignInButton />
     </SignInOutModalContext.Provider>
   );
 };
