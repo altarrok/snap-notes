@@ -3,7 +3,7 @@ import { api } from "~/utils/api";
 import { Spinner } from "../ui/Spinner";
 import { useEffect } from "react";
 
-export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, previousContent: string, onSuccess?: () => void }> = ({ noteId, previousTitle, previousContent, onSuccess }) => {
+export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, previousContent: string, onSuccess?: () => void, onExit?: () => void }> = ({ noteId, previousTitle, previousContent, onSuccess, onExit }) => {
     const utils = api.useContext();
     const updateNoteMutation = api.note.upsert.useMutation({
         async onSuccess() {
@@ -18,7 +18,7 @@ export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, p
     }, [updateNoteMutation.isSuccess])
 
     return (
-        <div className="flex flex-col space-y-4 items-center">
+        <div className="flex flex-col space-y-4 items-center justify-center h-full">
             {
                 updateNoteMutation.isLoading ? (
                     <Spinner size={12} />
@@ -36,6 +36,14 @@ export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, p
                                 content: previousContent,
                             }}
                         />
+                        <div className="absolute top-0 right-0" style={{ marginTop: 0 }}>
+                            <button
+                                className="text-4xl px-2 transition-colors hover:text-red-500"
+                                onClick={() => onExit?.()}
+                            >
+                                &times;
+                            </button>
+                        </div>
                     </>
                 )
             }
