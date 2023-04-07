@@ -8,17 +8,18 @@ export const NoteCard: React.FC<{ noteId: string, title: string, content: string
 
     return (
         <Card>
-            <div className="flex flex-col">
+            <div className="flex flex-col h-full">
                 {
                     cardStage === "EDIT" ? (
-                        <div className="p-4">
-                            <EditNoteWidget
-                                noteId={noteId}
-                                previousTitle={title}
-                                previousContent={content}
-                                onSuccess={() => setCardStage("VIEW")}
-                            />
-                        </div>
+                            <div className="p-4 h-full">
+                                <EditNoteWidget
+                                    noteId={noteId}
+                                    previousTitle={title}
+                                    previousContent={content}
+                                    onSuccess={() => setCardStage("VIEW")}
+                                    onExit={() => setCardStage("VIEW")}
+                                />
+                            </div>
                     ) : (
                         <>
                             <h2 className="text-5xl text-center font-bold border-b border-b-solid border-b-gray-200 p-4 break-words">
@@ -33,14 +34,7 @@ export const NoteCard: React.FC<{ noteId: string, title: string, content: string
             </div>
             <div className="absolute top-0 right-0 ">
                 {
-                    cardStage === "EDIT" ? (
-                        <button
-                            className="text-4xl px-2 transition-colors hover:text-red-500"
-                            onClick={() => setCardStage("VIEW")}
-                        >
-                            &times;
-                        </button>
-                    ) : (
+                    cardStage === "VIEW" && (
                         <NoteMenu
                             onEdit={() => setCardStage("EDIT")}
                         />
