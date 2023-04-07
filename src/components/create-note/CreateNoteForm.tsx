@@ -1,7 +1,11 @@
 export const CreateNoteForm: React.FC<{
+    defaultValues?: {
+        title?: string,
+        content?: string
+    }
     onSubmit: (formInput: { noteTitle: string, noteContent: string }) => void,
     error?: string
-}> = ({ onSubmit, error }) => {
+}> = ({ defaultValues, onSubmit, error }) => {
     return (
         <form
             className="space-y-4 w-full"
@@ -26,6 +30,7 @@ export const CreateNoteForm: React.FC<{
                     required
                     minLength={2}
                     maxLength={24}
+                    defaultValue={defaultValues?.title}
                 />
             </div>
             <div>
@@ -36,6 +41,7 @@ export const CreateNoteForm: React.FC<{
                     rows={6}
                     className="w-full p-2 mt-1 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring focus:ring-blue-300 focus:border-blue-300"
                     maxLength={400}
+                    defaultValue={defaultValues?.content}
                 />
             </div>
             {error && <div className="text-red-500 italic font-bold text-center">{error}</div>}

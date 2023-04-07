@@ -7,17 +7,38 @@ import {
 } from "~/server/api/trpc";
 
 export const noteRouter = createTRPCRouter({
-    create: protectedProcedure
+    upsert: protectedProcedure
         .input(z.object({
+            noteId: z.string().optional(),
             title: z.string().min(2).max(24),
             content: z.string().max(400),
         }))
-        .mutation(({ input, ctx }) => {
-            return ctx.prisma.note.create({
-                data: {
+        .mutation(async ({ input, ctx }) => {
+            if (input.noteId) {
+                const noteOwnerUserId = (await ctx.prisma.note.findUnique({
+                    where: {
+                        id: input.noteId
+                    }
+                }))?.userId
+
+                if (ctx.session.user.id !== noteOwnerUserId) {
+                    throw new Error("Unauthorized")
+                }
+            }
+
+            return ctx.prisma.note.upsert({
+                create: {
                     title: input.title,
                     content: input.content,
                     userId: ctx.session.user.id
+                },
+                update: {
+                    title: input.title,
+                    content: input.content,
+                    userId: ctx.session.user.id
+                },
+                where: {
+                    id: input.noteId || ""
                 }
             });
         }),
@@ -43,8 +64,8 @@ export const noteRouter = createTRPCRouter({
             }
 
             return {
-              notes,
-              nextCursor,
+                notes,
+                nextCursor,
             };
         })
 });
