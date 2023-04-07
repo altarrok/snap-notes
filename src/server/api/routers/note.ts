@@ -68,6 +68,17 @@ export const noteRouter = createTRPCRouter({
                 nextCursor,
             };
         }),
+    getById: publicProcedure
+        .input(z.object({
+            noteId: z.string()
+        }))
+        .query(async ({ input, ctx }) => {
+            return await ctx.prisma.note.findUnique({
+                where: {
+                    id: input.noteId
+                }
+            })
+        }),
     delete: protectedProcedure
         .input(z.object({
             noteId: z.string()
