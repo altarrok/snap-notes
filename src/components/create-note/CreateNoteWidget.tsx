@@ -7,7 +7,7 @@ import { CreateNoteForm } from "./CreateNoteForm";
 
 export const CreateNoteWidget: React.FC = () => {
     const utils = api.useContext();
-    const createNoteMutation = api.note.create.useMutation({
+    const createNoteMutation = api.note.upsert.useMutation({
         async onSuccess() {
             await utils.note.getWithCursor.invalidate();
         }

@@ -32,6 +32,7 @@ export const Notebook: React.FC = () => {
             {
                 data?.pages.map(page => page.notes.map((note, i) => (
                     <NoteCard
+                        noteId={note.id}
                         key={i}
                         title={note.title}
                         content={note.content}
