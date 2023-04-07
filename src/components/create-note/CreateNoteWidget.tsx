@@ -2,20 +2,25 @@ import { useSession } from "next-auth/react";
 import { useCallback, useContext } from "react";
 import { api } from "~/utils/api";
 import { SignInOutModalContext } from "../auth/SignInOutModalContext";
-import { Spinner } from "../Spinner";
+import { Spinner } from "../ui/Spinner";
 import { CreateNoteForm } from "./CreateNoteForm";
 
 export const CreateNoteWidget: React.FC = () => {
-    const createNoteMutation = api.note.create.useMutation();
+    const utils = api.useContext();
+    const createNoteMutation = api.note.create.useMutation({
+        async onSuccess() {
+            await utils.note.getWithCursor.invalidate();
+        }
+    });
     const { setIsSignInOutModalOpen } = useContext(SignInOutModalContext);
     const { status } = useSession();
-    
+
     const formSubmissionHandler = useCallback((formInput: { noteTitle: string, noteContent: string }) => {
         if (status !== "authenticated") {
             setIsSignInOutModalOpen(true);
             return;
         }
-        
+
         createNoteMutation.mutate({
             title: formInput.noteTitle,
             content: formInput.noteContent,

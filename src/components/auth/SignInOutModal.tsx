@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { SignInOutModalContext } from "./SignInOutModalContext";
-import { Modal } from "../Modal";
+import { Modal } from "../ui/Modal";
 import { GoogleIcon } from "./GoogleIcon";
 import { signIn } from "next-auth/react";
 
