@@ -3,7 +3,8 @@ import { useState } from "react";
 import { SignInButton } from "~/components/auth/SignInButton";
 import { SignInOutModal } from "~/components/auth/SignInOutModal";
 import { SignInOutModalContext } from "~/components/auth/SignInOutModalContext";
-import { CreateNoteWidget } from "~/components/create-note";
+import { CreateNoteCard } from "~/components/create-note/CreateNoteCard";
+import { Notebook } from "~/components/notebook/Notebook";
 
 const Home: NextPage = () => {
   const [isSignInOutModalOpen, setIsSignInOutModalOpen] = useState(false);
@@ -11,7 +12,7 @@ const Home: NextPage = () => {
   return (
     <SignInOutModalContext.Provider value={{ isSignInOutModalOpen, setIsSignInOutModalOpen }}>
       <SignInOutModal />
-      <CreateNoteWidget />
+      <Notebook />
       <SignInButton />
     </SignInOutModalContext.Provider>
   );
