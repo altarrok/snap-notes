@@ -67,5 +67,26 @@ export const noteRouter = createTRPCRouter({
                 notes,
                 nextCursor,
             };
-        })
+        }),
+    delete: protectedProcedure
+        .input(z.object({
+            noteId: z.string()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            const targetNoteOwnerId = (await ctx.prisma.note.findUnique({
+                where: {
+                    id: input.noteId
+                }
+            }))?.userId
+
+            if (ctx.session.user.id !== targetNoteOwnerId) {
+                throw new Error("Unauthorized")
+            }
+
+            return ctx.prisma.note.delete({
+                where: {
+                    id: input.noteId
+                }
+            })
+        }),
 });

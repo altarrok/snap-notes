@@ -1,7 +1,7 @@
 import { Menu, MenuButton, MenuItem } from "@szhsin/react-menu";
-import { MdEditNote } from "react-icons/md";
+import { MdEditNote, MdDelete } from "react-icons/md";
 
-export const NoteMenu: React.FC<{ onEdit: () => void }> = ({ onEdit }) => {
+export const NoteMenu: React.FC<{ onEdit: () => void, onDelete: () => void }> = ({ onEdit, onDelete }) => {
     return (
         <Menu
             menuButton={<MenuButton className="text-2xl after:content-['\2807'] pl-3 pr-2 py-2 transition-colors hover:text-pink-400" />}
@@ -12,7 +12,12 @@ export const NoteMenu: React.FC<{ onEdit: () => void }> = ({ onEdit }) => {
             <MenuItem onClick={() => onEdit()} className="py-2 px-2 cursor-pointer hover:bg-gray-200 transition-colors rounded-md">
                 <span className="flex items-center">
                     <MdEditNote className="text-4xl pr-2" /> Edit
-                    </span>
+                </span>
+            </MenuItem>
+            <MenuItem onClick={() => onDelete()} className="py-2 px-2 cursor-pointer hover:bg-gray-200 transition-colors rounded-md">
+                <span className="flex items-center hover:text-red-500 transition-colors">
+                    <MdDelete className="text-4xl pr-2" /> Delete
+                </span>
             </MenuItem>
         </Menu>
     );
