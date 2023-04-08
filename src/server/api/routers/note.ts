@@ -45,7 +45,8 @@ export const noteRouter = createTRPCRouter({
     getWithCursor: publicProcedure
         .input(z.object({
             limit: z.number(),
-            cursor: z.string().nullish()
+            cursor: z.string().nullish(),
+            searchValue: z.string().nonempty().optional(),
         }))
         .query(async ({ input, ctx }) => {
             const notes = await ctx.prisma.note.findMany({
@@ -53,7 +54,15 @@ export const noteRouter = createTRPCRouter({
                 cursor: input.cursor ? { id: input.cursor } : undefined,
                 orderBy: {
                     createdAt: 'desc'
-                }
+                },
+                ...(input.searchValue ? {
+                    where: {
+                        OR: [
+                            { title: { contains: input.searchValue, mode: "insensitive" } },
+                            { content: { contains: input.searchValue, mode: "insensitive" } },
+                        ],
+                    }
+                } : {})
             });
 
             let nextCursor: typeof input.cursor = undefined;

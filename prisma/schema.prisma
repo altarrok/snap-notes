@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider      = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+    provider        = "prisma-client-js"
+    binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -62,11 +62,11 @@ model VerificationToken {
 }
 
 model Note {
-    id      String @id @default(cuid())
-    userId  String
-    title   String
-    content String
-    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    createdAt   DateTime @default(now()) @db.Timestamptz(3)
-    updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+    id        String   @id @default(cuid())
+    userId    String
+    title     String
+    content   String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now()) @db.Timestamptz(3)
+    updatedAt DateTime @updatedAt @db.Timestamptz(3)
 }
