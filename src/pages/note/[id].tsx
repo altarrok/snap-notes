@@ -25,6 +25,7 @@ const Note: NextPage = () => {
                                 noteId={noteQuery.data.id}
                                 title={noteQuery.data.title}
                                 content={noteQuery.data.content}
+                                tags={noteQuery.data.tags.map(tag => tag.name)}
                                 optionsDisabled
                             />
                         ) : (

@@ -3,11 +3,12 @@ import { api } from "~/utils/api";
 import { Spinner } from "../ui/Spinner";
 import { useEffect } from "react";
 
-export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, previousContent: string, onSuccess?: () => void, onExit?: () => void }> = ({ noteId, previousTitle, previousContent, onSuccess, onExit }) => {
+export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, previousContent: string, previousTags: string[], onSuccess?: () => void, onExit?: () => void }> = ({ noteId, previousTitle, previousContent, previousTags, onSuccess, onExit }) => {
     const utils = api.useContext();
     const updateNoteMutation = api.note.upsert.useMutation({
         async onSuccess() {
-            await utils.note.getWithCursor.invalidate();
+            await utils.note.getWithCursor.refetch();
+            await utils.tag.getCurrentUsersTags.invalidate();
         }
     });
 
@@ -30,10 +31,12 @@ export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, p
                                 noteId,
                                 title: formInput.noteTitle,
                                 content: formInput.noteContent,
+                                tags: formInput.noteTags
                             })}
                             defaultValues={{
                                 title: previousTitle,
                                 content: previousContent,
+                                tags: previousTags,
                             }}
                         />
                         <div className="absolute top-0 right-0" style={{ marginTop: 0 }}>
