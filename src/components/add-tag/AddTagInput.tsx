@@ -18,7 +18,7 @@ export const AddTagInput: React.FC<{ tagOptions: string[], defaultValue?: string
         const lowerCaseNewFilteredTagOptions = newFilteredTagOptions.map(filteredTagOption => filteredTagOption.toLowerCase());
 
         if (query !== '' && !lowerCaseNewFilteredTagOptions.includes(query.toLowerCase()) && !lowerCaseSelectedTags.includes(query.toLowerCase())) {
-            newFilteredTagOptions.push(query);
+            newFilteredTagOptions.unshift(query);
         }
 
         return newFilteredTagOptions;
@@ -56,13 +56,13 @@ export const AddTagInput: React.FC<{ tagOptions: string[], defaultValue?: string
                 />
                 {
                     (filteredTagOptions.length > 0) && (
-                        <Combobox.Options className="bg-white mt-1 rounded-md p-2 absolute z-10 w-full">
+                        <Combobox.Options className="bg-white mt-1 rounded-md p-2 absolute z-10 w-full max-h-96 overflow-y-auto">
                             {filteredTagOptions.map((tagOption, i) => (
                                 <Combobox.Option
                                     title={tagOption}
                                     key={i}
                                     value={tagOption}
-                                    className="cursor-pointer hover:bg-gray-200 py-2 px-4 rounded-xl overflow-x-hidden text-ellipsis"
+                                    className={`cursor-pointer hover:bg-gray-200 py-2 px-4 rounded-xl overflow-x-hidden text-ellipsis ${query === tagOption && !tagOptions.includes(tagOption) && 'bg-green-200 hover:bg-green-100'}`}
                                 >
                                     {tagOption}
                                 </Combobox.Option>
