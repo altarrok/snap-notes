@@ -23,7 +23,7 @@ export const SearchNoteDebouncedInput: React.FC<{
         <input
             type="text"
             placeholder="Search for notes"
-            className="p-2 m-2 border border-solid border-gray-400 rounded-md"
+            className="p-2 border border-solid border-gray-400 rounded-md"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
         />

@@ -12,6 +12,7 @@ export const noteRouter = createTRPCRouter({
             noteId: z.string().optional(),
             title: z.string().min(2).max(24),
             content: z.string().max(400),
+            tags: z.string().array()
         }))
         .mutation(async ({ input, ctx }) => {
             if (input.noteId) {
@@ -30,12 +31,58 @@ export const noteRouter = createTRPCRouter({
                 create: {
                     title: input.title,
                     content: input.content,
-                    userId: ctx.session.user.id
+                    userId: ctx.session.user.id,
+                    tags: {
+                        create: input.tags.map(tag => ({
+                            tag: {
+                                connectOrCreate: {
+                                    create: {
+                                        userId: ctx.session.user.id,
+                                        name: tag,
+                                    },
+                                    where: {
+                                        userId_name: {
+                                            userId: ctx.session.user.id,
+                                            name: tag,
+                                        }
+                                    }
+                                }
+                            }
+                        }))
+                    },
                 },
                 update: {
                     title: input.title,
                     content: input.content,
-                    userId: ctx.session.user.id
+                    userId: ctx.session.user.id,
+                    tags: {
+                        deleteMany: {},
+                        connectOrCreate: input.tags.map(tag => ({
+                            create: {
+                                tag: {
+                                    connectOrCreate: {
+                                        create: {
+                                            userId: ctx.session.user.id,
+                                            name: tag,
+                                        },
+                                        where: {
+                                            userId_name: {
+                                                userId: ctx.session.user.id,
+                                                name: tag,
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            where: {
+                                noteId_userId_name: {
+                                    noteId: input.noteId || "",
+                                    userId: ctx.session.user.id,
+                                    name: tag,
+                                }
+                            }
+                        }))
+                    },
                 },
                 where: {
                     id: input.noteId || ""
@@ -47,6 +94,7 @@ export const noteRouter = createTRPCRouter({
             limit: z.number(),
             cursor: z.string().nullish(),
             searchValue: z.string().nonempty().optional(),
+            tags: z.string().array().optional(),
         }))
         .query(async ({ input, ctx }) => {
             const notes = await ctx.prisma.note.findMany({
@@ -55,14 +103,30 @@ export const noteRouter = createTRPCRouter({
                 orderBy: {
                     createdAt: 'desc'
                 },
-                ...(input.searchValue ? {
+                include: {
+                    tags: true
+                },
+                ...(input.searchValue || input.tags ? {
                     where: {
-                        OR: [
-                            { title: { contains: input.searchValue, mode: "insensitive" } },
-                            { content: { contains: input.searchValue, mode: "insensitive" } },
-                        ],
+                        AND: {
+                            ...(input.searchValue ? {
+                                OR: [
+                                    { title: { contains: input.searchValue, mode: "insensitive" } },
+                                    { content: { contains: input.searchValue, mode: "insensitive" } },
+                                ]
+                            } : {}),
+                            ...(input.tags ? {
+                                tags: {
+                                    some: {
+                                        OR: input.tags?.map(tag => ({
+                                            name: tag
+                                        }))
+                                    }
+                                }
+                            } : {})
+                        },
                     }
-                } : {})
+                } : {}),
             });
 
             let nextCursor: typeof input.cursor = undefined;
@@ -85,6 +149,9 @@ export const noteRouter = createTRPCRouter({
             return await ctx.prisma.note.findUnique({
                 where: {
                     id: input.noteId
+                },
+                include: {
+                    tags: true
                 }
             })
         }),

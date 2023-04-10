@@ -9,13 +9,14 @@ export const CreateNoteWidget: React.FC = () => {
     const utils = api.useContext();
     const createNoteMutation = api.note.upsert.useMutation({
         async onSuccess() {
-            await utils.note.getWithCursor.invalidate();
+            await utils.note.getWithCursor.refetch();
+            await utils.tag.getCurrentUsersTags.invalidate();
         }
     });
     const { setIsSignInOutModalOpen } = useContext(SignInOutModalContext);
     const { status } = useSession();
 
-    const formSubmissionHandler = useCallback((formInput: { noteTitle: string, noteContent: string }) => {
+    const formSubmissionHandler = useCallback((formInput: { noteTitle: string, noteContent: string, noteTags: string[] }) => {
         if (status !== "authenticated") {
             setIsSignInOutModalOpen(true);
             return;
@@ -24,6 +25,7 @@ export const CreateNoteWidget: React.FC = () => {
         createNoteMutation.mutate({
             title: formInput.noteTitle,
             content: formInput.noteContent,
+            tags: formInput.noteTags
         });
     }, [status, setIsSignInOutModalOpen]);
 

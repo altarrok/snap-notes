@@ -5,14 +5,17 @@ import { useCallback, useState } from "react";
 import { Spinner } from "../ui/Spinner";
 import { ShareNoteModal } from "../share-note/ShareNoteModal";
 import { SearchNoteDebouncedInput } from "../search-note/SearchNoteDebouncedInput";
+import { TagFilterWidget } from "../tag-filter/TagFilterWidget";
 
 export const Notebook: React.FC = () => {
-    const [shareModalNoteId, setShareModalNoteId] = useState<string>();
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [noteSearchDebouncedInput, setNoteSearchDebouncedInput] = useState<string>();
+    const [shareModalNoteId, setShareModalNoteId] = useState<string>();
     const { data, fetchNextPage, hasNextPage } = api.note.getWithCursor.useInfiniteQuery(
         {
             limit: 15,
-            searchValue: (noteSearchDebouncedInput !== "" ? noteSearchDebouncedInput : undefined)
+            searchValue: (noteSearchDebouncedInput !== "" ? noteSearchDebouncedInput : undefined),
+            tags: (selectedTags.length > 0 ? selectedTags : undefined),
         },
         {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -34,7 +37,8 @@ export const Notebook: React.FC = () => {
     return (
         <>
             <div className="flex flex-col">
-                <div className="flex flex-row justify-end">
+                <div className="flex flex-row justify-end gap-2 py-2">
+                    <TagFilterWidget selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
                     <SearchNoteDebouncedInput onDebouncedValueChange={(noteSearchInputValue) => setNoteSearchDebouncedInput(noteSearchInputValue)} />
                 </div>
                 <div className="grid grid-cols-4 auto-rows-fr gap-4" >
@@ -46,6 +50,7 @@ export const Notebook: React.FC = () => {
                                 key={i}
                                 title={note.title}
                                 content={note.content}
+                                tags={note.tags.map(tag => tag.name)}
                                 onShare={() => setShareModalNoteId(note.id)}
                             />
                         )))

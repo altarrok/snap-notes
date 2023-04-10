@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider        = "prisma-client-js"
-    binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -49,6 +49,7 @@ model User {
     emailVerified DateTime?
     image         String?
     notes         Note[]
+    tags          Tag[]
     accounts      Account[]
     sessions      Session[]
 }
@@ -62,11 +63,31 @@ model VerificationToken {
 }
 
 model Note {
-    id        String   @id @default(cuid())
+    id        String        @id @default(cuid())
     userId    String
     title     String
     content   String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now()) @db.Timestamptz(3)
-    updatedAt DateTime @updatedAt @db.Timestamptz(3)
+    user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tags      TagsOnNotes[]
+    createdAt DateTime      @default(now()) @db.Timestamptz(3)
+    updatedAt DateTime      @updatedAt @db.Timestamptz(3)
+}
+
+model Tag {
+    userId String
+    name   String
+    user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    notes  TagsOnNotes[]
+
+    @@id([userId, name])
+}
+
+model TagsOnNotes {
+    noteId String
+    userId String
+    name   String
+    tag    Tag    @relation(fields: [userId, name], references: [userId, name], onDelete: Cascade)
+    Note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+    @@id([noteId, userId, name])
 }

@@ -1,9 +1,12 @@
+import { AddTagInputWidget } from "../add-tag/AddTagInputWidget";
+
 export const CreateNoteForm: React.FC<{
     defaultValues?: {
         title?: string,
-        content?: string
+        content?: string,
+        tags?: string[]
     }
-    onSubmit: (formInput: { noteTitle: string, noteContent: string }) => void,
+    onSubmit: (formInput: { noteTitle: string, noteContent: string, noteTags: string[] }) => void,
     error?: string
 }> = ({ defaultValues, onSubmit, error }) => {
     return (
@@ -12,12 +15,21 @@ export const CreateNoteForm: React.FC<{
             onSubmit={e => {
                 e.preventDefault();
 
-                const target = e.target as typeof e.target & {
-                    "note-title": { value: string };
-                    "note-content": { value: string };
-                };
+                const formData = new FormData(e.target as HTMLFormElement);
 
-                onSubmit({ noteTitle: target["note-title"].value, noteContent: target["note-content"].value });
+                const formInputMap = {
+                    noteTitle: formData.get('note-title') as string,
+                    noteContent: formData.get('note-content') as string,
+                    noteTags: [...formData.entries()].reduce<string[]>((tags, entry) => {
+                        if (entry[0].includes('note-tags')) {
+                            return [...tags, entry[1] as string]
+                        }
+                        
+                        return tags;
+                    }, []),
+                }
+
+                onSubmit(formInputMap);
             }}
         >
             <div>
@@ -43,6 +55,9 @@ export const CreateNoteForm: React.FC<{
                     maxLength={400}
                     defaultValue={defaultValues?.content}
                 />
+            </div>
+            <div>
+                <AddTagInputWidget defaultValue={defaultValues?.tags} />
             </div>
             {error && <div className="text-red-500 italic font-bold text-center">{error}</div>}
             <button type="submit" className="bg-blue-500 text-white font-medium p-2 rounded-md hover:bg-blue-400 transition-colors w-full">Save Note</button>
