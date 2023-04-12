@@ -95,13 +95,22 @@ export const noteRouter = createTRPCRouter({
             cursor: z.string().nullish(),
             searchValue: z.string().nonempty().optional(),
             tags: z.string().array().optional(),
+            sortBy: z.enum(["TITLE", "DATE"]).optional(),
         }))
         .query(async ({ input, ctx }) => {
             const notes = await ctx.prisma.note.findMany({
                 take: input.limit + 1,
                 cursor: input.cursor ? { id: input.cursor } : undefined,
+
                 orderBy: {
-                    createdAt: 'desc'
+                    ...(
+                        input.sortBy === "TITLE" ? {
+                            title: 'asc'
+                        } : {
+                            createdAt: 'desc'
+                        }
+                    )
+
                 },
                 include: {
                     tags: true

@@ -6,9 +6,11 @@ import { Spinner } from "../ui/Spinner";
 import { ShareNoteModal } from "../share-note/ShareNoteModal";
 import { SearchNoteDebouncedInput } from "../search-note/SearchNoteDebouncedInput";
 import { TagFilterWidget } from "../tag-filter/TagFilterWidget";
+import { SortSelector } from "../sort-selector/SortSelector";
 
 export const Notebook: React.FC = () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [sortBy, setSortBy] = useState<"TITLE" | "DATE">("DATE");
     const [noteSearchDebouncedInput, setNoteSearchDebouncedInput] = useState<string>();
     const [shareModalNoteId, setShareModalNoteId] = useState<string>();
     const { data, fetchNextPage, hasNextPage } = api.note.getWithCursor.useInfiniteQuery(
@@ -16,6 +18,7 @@ export const Notebook: React.FC = () => {
             limit: 15,
             searchValue: (noteSearchDebouncedInput !== "" ? noteSearchDebouncedInput : undefined),
             tags: (selectedTags.length > 0 ? selectedTags : undefined),
+            sortBy,
         },
         {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -39,6 +42,7 @@ export const Notebook: React.FC = () => {
             <div className="flex flex-col">
                 <div className="flex flex-row justify-end gap-2 py-2">
                     <TagFilterWidget selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
+                    <SortSelector onChange={setSortBy} />
                     <SearchNoteDebouncedInput onDebouncedValueChange={(noteSearchInputValue) => setNoteSearchDebouncedInput(noteSearchInputValue)} />
                 </div>
                 <div className="grid grid-cols-4 auto-rows-fr gap-4" >
