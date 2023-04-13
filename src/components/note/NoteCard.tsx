@@ -6,7 +6,17 @@ import { api } from "~/utils/api";
 import { Spinner } from "../ui/Spinner";
 import { Tag } from "../Tag";
 
-export const NoteCard: React.FC<{ noteId: string, title: string, content: string, tags: string[], optionsDisabled?: boolean, onShare?: () => void }> = ({ noteId, title, content, tags, optionsDisabled, onShare }) => {
+export const NoteCard: React.FC<{
+    noteId: string,
+    title: string,
+    content: string,
+    tags: string[],
+    optionsDisabled?: boolean,
+    archiveMode?: boolean,
+    onShare?: () => void,
+    onArchive?: () => void,
+    onUnarchive?: () => void,
+}> = ({ noteId, title, content, tags, optionsDisabled, archiveMode, onShare, onArchive, onUnarchive }) => {
     const [cardStage, setCardStage] = useState<"VIEW" | "EDIT">("VIEW");
     const utils = api.useContext();
     const deleteNoteMutation = api.note.delete.useMutation({
@@ -71,9 +81,17 @@ export const NoteCard: React.FC<{ noteId: string, title: string, content: string
 
                         <div className="absolute top-0 right-0 ">
                             <NoteMenu
-                                onEdit={() => setCardStage("EDIT")}
-                                onDelete={() => deleteNoteMutation.mutate({ noteId })}
                                 onShare={onShare}
+                                onArchive={onArchive}
+                                onUnarchive={onUnarchive}
+                                {
+                                ...(
+                                    !archiveMode && {
+                                        onEdit: () => setCardStage("EDIT"),
+                                        onDelete: () => deleteNoteMutation.mutate({ noteId })
+                                    }
+                                )
+                                }
                             />
                         </div>
                     )

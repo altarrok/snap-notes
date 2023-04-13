@@ -67,6 +67,7 @@ model Note {
     userId    String
     title     String
     content   String
+    archived  Boolean       @default(false)
     user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     tags      TagsOnNotes[]
     createdAt DateTime      @default(now()) @db.Timestamptz(3)
