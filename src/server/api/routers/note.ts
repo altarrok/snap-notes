@@ -96,6 +96,7 @@ export const noteRouter = createTRPCRouter({
             searchValue: z.string().nonempty().optional(),
             tags: z.string().array().optional(),
             sortBy: z.enum(["TITLE", "DATE"]).optional(),
+            archivedPosts: z.boolean().optional(),
         }))
         .query(async ({ input, ctx }) => {
             const notes = await ctx.prisma.note.findMany({
@@ -115,27 +116,27 @@ export const noteRouter = createTRPCRouter({
                 include: {
                     tags: true
                 },
-                ...(input.searchValue || input.tags ? {
-                    where: {
-                        AND: {
-                            ...(input.searchValue ? {
-                                OR: [
-                                    { title: { contains: input.searchValue, mode: "insensitive" } },
-                                    { content: { contains: input.searchValue, mode: "insensitive" } },
-                                ]
-                            } : {}),
-                            ...(input.tags ? {
-                                tags: {
-                                    some: {
-                                        OR: input.tags?.map(tag => ({
-                                            name: tag
-                                        }))
-                                    }
+                where: {
+                    AND: {
+                        archived: !!input.archivedPosts,
+                        ...(input.searchValue ? {
+                            OR: [
+                                { title: { contains: input.searchValue, mode: "insensitive" } },
+                                { content: { contains: input.searchValue, mode: "insensitive" } },
+                            ]
+                        } : {}),
+                        ...(input.tags ? {
+                            tags: {
+                                some: {
+                                    OR: input.tags?.map(tag => ({
+                                        name: tag
+                                    }))
                                 }
-                            } : {})
-                        },
-                    }
-                } : {}),
+                            }
+                        } : {}),
+                    },
+                }
+                ,
             });
 
             let nextCursor: typeof input.cursor = undefined;
@@ -180,6 +181,30 @@ export const noteRouter = createTRPCRouter({
             }
 
             return ctx.prisma.note.delete({
+                where: {
+                    id: input.noteId
+                }
+            })
+        }),
+    switchArchiveStatus: protectedProcedure
+        .input(z.object({
+            noteId: z.string()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            const targetNote = await ctx.prisma.note.findUnique({
+                where: {
+                    id: input.noteId
+                }
+            });
+
+            if (ctx.session.user.id !== targetNote?.userId) {
+                throw new Error("Unauthorized")
+            }
+
+            return ctx.prisma.note.update({
+                data: {
+                    archived: !targetNote.archived
+                },
                 where: {
                     id: input.noteId
                 }
