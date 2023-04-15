@@ -30,14 +30,14 @@ export const NoteMenu: React.FC<{
                     <MdArchive className="text-4xl pr-2" /> Archive
                 </span>
             </MenuItem>}
-            {onDelete && <MenuItem onClick={() => onDelete()} className="py-2 px-2 cursor-pointer hover:bg-gray-200 transition-colors rounded-b-md">
-                <span className="flex items-center hover:text-red-500 transition-colors">
-                    <MdDelete className="text-4xl pr-2" /> Delete
-                </span>
-            </MenuItem>}
             {onUnarchive && <MenuItem onClick={() => onUnarchive()} className="py-2 px-2 cursor-pointer hover:bg-gray-200 transition-colors">
                 <span className="flex items-center">
                     <MdUnarchive className="text-4xl pr-2" /> Unarchive
+                </span>
+            </MenuItem>}
+            {onDelete && <MenuItem onClick={() => onDelete()} className="py-2 px-2 cursor-pointer hover:bg-gray-200 transition-colors rounded-b-md">
+                <span className="flex items-center hover:text-red-500 transition-colors">
+                    <MdDelete className="text-4xl pr-2" /> Delete
                 </span>
             </MenuItem>}
         </Menu>

@@ -1,10 +1,10 @@
 import { Listbox } from '@headlessui/react'
 import { MdExpandMore, MdSort } from "react-icons/md";
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
+import { NotebookContext } from '../notebook/NotebookContext';
 
-export const SortSelector: React.FC<{
-    onChange: (sortBy: "TITLE" | "DATE") => void,
-}> = ({ onChange }) => {
+export const SortSelector: React.FC = () => {
+    const { setNotebookContextState } = useContext(NotebookContext);
 
     const sortOptions: {
         label: string,
@@ -24,7 +24,10 @@ export const SortSelector: React.FC<{
 
     return (
         <div className="relative">
-            <Listbox defaultValue={sortOptions[0]} onChange={(sortOption) => onChange(sortOption.option)}>
+            <Listbox
+                defaultValue={sortOptions[0]}
+                onChange={(sortOption) => setNotebookContextState((prevState) => ({ ...prevState, sortBy: sortOption.option }))}
+            >
                 <Listbox.Button>
                     <span className="text-2xl p-2 flex items-center border border-solid border-gray-400 rounded-md">
                         <MdSort />
