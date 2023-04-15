@@ -1,28 +1,34 @@
 import { MdContentCopy } from "react-icons/md";
 import { Modal } from "../ui/Modal";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { NotebookContext } from "../notebook/NotebookContext";
 
 export const ShareNoteModal: React.FC<
-    { noteId?: string } & Omit<React.ComponentProps<typeof Modal>, "isOpen">
-> = ({ noteId, ...modalProps }) => {
+    Omit<React.ComponentProps<typeof Modal>, "isOpen" | "onRequestClose">
+> = ({ ...modalProps }) => {
+    const { notebookContextState: { shareModalNoteId }, setNotebookContextState } = useContext(NotebookContext);
     const [isSuccess, setSuccess] = useState(false);
 
     const shareLink = useMemo(() => {
         if (typeof document !== "undefined") {
             const { origin, pathname } = new URL(document.URL);
-            return `${origin}${pathname}note/${noteId}`;
+            return `${origin}${pathname}note/${shareModalNoteId}`;
         } else {
-            return `/${noteId}`
+            return `/${shareModalNoteId}`
         }
-    }, [noteId])
+    }, [shareModalNoteId])
 
     useEffect(() => {
         setSuccess(false)
-    }, [noteId])
+    }, [shareModalNoteId])
 
     return (
         <Modal
-            isOpen={!!noteId}
+            isOpen={!!shareModalNoteId}
+            onRequestClose={() => setNotebookContextState((prevState) => ({
+                ...prevState,
+                shareModalNoteId: undefined
+            }))}
             {...modalProps}
         >
             <div className="flex flex-col">

@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { NotebookContext } from "../notebook/NotebookContext";
 
-export const SearchNoteDebouncedInput: React.FC<{ 
-    onDebouncedValueChange: (input: string) => void 
-}> = ({ onDebouncedValueChange }) => {
+export const SearchNoteDebouncedInput: React.FC = () => {
+    const { setNotebookContextState } = useContext(NotebookContext);
     const [inputValue, setInputValue] = useState("");
 
 
     useEffect(
         () => {
             const handler = setTimeout(() => {
-                onDebouncedValueChange(inputValue);
+                setNotebookContextState((prevState) => ({ ...prevState, searchBy: inputValue}));
             }, 500);
 
             return () => {

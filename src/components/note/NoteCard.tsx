@@ -1,22 +1,27 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Card } from "../ui/Card";
 import { NoteMenu } from "./NoteMenu";
 import { EditNoteWidget } from "../edit-note/EditNoteWidget";
 import { api } from "~/utils/api";
 import { Spinner } from "../ui/Spinner";
 import { Tag } from "../Tag";
+import { NotebookContext } from "../notebook/NotebookContext";
 
 export const NoteCard: React.FC<{
     noteId: string,
     title: string,
     content: string,
     tags: string[],
-    optionsDisabled?: boolean,
+    activatedMenuOptions?: {
+        edit: boolean,
+        delete: boolean,
+        share: boolean,
+        archive: boolean,
+        unArchive: boolean,
+    },
     archiveMode?: boolean,
-    onShare?: () => void,
-    onArchive?: () => void,
-    onUnarchive?: () => void,
-}> = ({ noteId, title, content, tags, optionsDisabled, archiveMode, onShare, onArchive, onUnarchive }) => {
+}> = ({ noteId, title, content, tags, activatedMenuOptions }) => {
+    const { setNotebookContextState } = useContext(NotebookContext);
     const [cardStage, setCardStage] = useState<"VIEW" | "EDIT">("VIEW");
     const utils = api.useContext();
     const deleteNoteMutation = api.note.delete.useMutation({
@@ -24,6 +29,12 @@ export const NoteCard: React.FC<{
             await utils.note.getWithCursor.refetch();
         }
     });
+    
+    const switchArchiveStatusMutation = api.note.switchArchiveStatus.useMutation({
+        async onSuccess() {
+            await utils.note.getWithCursor.refetch();
+        }
+    })
 
     useEffect(() => {
         setCardStage("VIEW")
@@ -77,21 +88,15 @@ export const NoteCard: React.FC<{
                     }
                 </div>
                 {
-                    cardStage === "VIEW" && !deleteNoteMutation.isLoading && !optionsDisabled && (
+                    cardStage === "VIEW" && !deleteNoteMutation.isLoading && activatedMenuOptions && (
 
                         <div className="absolute top-0 right-0 ">
                             <NoteMenu
-                                onShare={onShare}
-                                onArchive={onArchive}
-                                onUnarchive={onUnarchive}
-                                {
-                                ...(
-                                    !archiveMode && {
-                                        onEdit: () => setCardStage("EDIT"),
-                                        onDelete: () => deleteNoteMutation.mutate({ noteId })
-                                    }
-                                )
-                                }
+                                onShare={activatedMenuOptions.share ? (() => setNotebookContextState((prevState) => ({ ...prevState, shareModalNoteId: noteId }))) : undefined}
+                                onUnarchive={activatedMenuOptions.unArchive ? () => switchArchiveStatusMutation.mutate({ noteId }) : undefined}
+                                onArchive={activatedMenuOptions.archive ? () => switchArchiveStatusMutation.mutate({ noteId }) : undefined}
+                                onEdit={activatedMenuOptions.edit ? () => setCardStage("EDIT") : undefined}
+                                onDelete={activatedMenuOptions.delete ? () => deleteNoteMutation.mutate({ noteId }) : undefined}
                             />
                         </div>
                     )
