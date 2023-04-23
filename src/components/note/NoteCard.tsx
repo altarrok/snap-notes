@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 import { Spinner } from "../ui/Spinner";
 import { Tag } from "../Tag";
 import { NotebookContext } from "../notebook/NotebookContext";
+import { SignInOutModalContext } from "../auth/SignInOutModalContext";
 
 export const NoteCard: React.FC<{
     noteId: string,
@@ -18,22 +19,34 @@ export const NoteCard: React.FC<{
         share: boolean,
         archive: boolean,
         unArchive: boolean,
-    },
-    archiveMode?: boolean,
+    }
 }> = ({ noteId, title, content, tags, activatedMenuOptions }) => {
     const { setNotebookContextState } = useContext(NotebookContext);
+    const { setIsSignInOutModalOpen } = useContext(SignInOutModalContext);
     const [cardStage, setCardStage] = useState<"VIEW" | "EDIT">("VIEW");
     const utils = api.useContext();
     const deleteNoteMutation = api.note.delete.useMutation({
         async onSuccess() {
             await utils.note.getWithCursor.refetch();
-        }
+            await utils.note.getById.refetch();
+        },
+        onError(error) {
+            if (error.data?.code === "UNAUTHORIZED") {
+                setIsSignInOutModalOpen(true);
+            }
+        },
     });
-    
+
     const switchArchiveStatusMutation = api.note.switchArchiveStatus.useMutation({
         async onSuccess() {
             await utils.note.getWithCursor.refetch();
-        }
+            await utils.note.getById.refetch();
+        },
+        onError(error) {
+            if (error.data?.code === "UNAUTHORIZED") {
+                setIsSignInOutModalOpen(true);
+            }
+        },
     })
 
     useEffect(() => {
@@ -88,8 +101,10 @@ export const NoteCard: React.FC<{
                     }
                 </div>
                 {
-                    cardStage === "VIEW" && !deleteNoteMutation.isLoading && activatedMenuOptions && (
-
+                    cardStage === "VIEW" &&
+                    !deleteNoteMutation.isLoading &&
+                    activatedMenuOptions &&
+                    Object.values(activatedMenuOptions).filter(menuOptionValue => menuOptionValue).length > 0 && (
                         <div className="absolute top-0 right-0 ">
                             <NoteMenu
                                 onShare={activatedMenuOptions.share ? (() => setNotebookContextState((prevState) => ({ ...prevState, shareModalNoteId: noteId }))) : undefined}

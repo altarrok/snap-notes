@@ -63,15 +63,16 @@ model VerificationToken {
 }
 
 model Note {
-    id        String        @id @default(cuid())
-    userId    String
-    title     String
-    content   String
-    archived  Boolean       @default(false)
-    user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    tags      TagsOnNotes[]
-    createdAt DateTime      @default(now()) @db.Timestamptz(3)
-    updatedAt DateTime      @updatedAt @db.Timestamptz(3)
+    id                String           @id @default(cuid())
+    userId            String
+    title             String
+    content           String
+    archived          Boolean          @default(false)
+    user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tags              TagsOnNotes[]
+    sharedPermissions NotePermission[] @default([])
+    createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+    updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
 }
 
 model Tag {
@@ -91,4 +92,10 @@ model TagsOnNotes {
     Note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
 
     @@id([noteId, userId, name])
+}
+
+enum NotePermission {
+    EDIT
+    ARCHIVE
+    DELETE
 }

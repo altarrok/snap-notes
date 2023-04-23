@@ -2,6 +2,7 @@ import { type NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Layout } from "~/components/Layout";
+import { SignInButton } from "~/components/auth/SignInButton";
 import { NoteCard } from "~/components/note/NoteCard";
 import { Spinner } from "~/components/ui/Spinner";
 import { api } from "~/utils/api";
@@ -26,6 +27,13 @@ const Note: NextPage = () => {
                                 title={noteQuery.data.title}
                                 content={noteQuery.data.content}
                                 tags={noteQuery.data.tags.map(tag => tag.name)}
+                                activatedMenuOptions={{
+                                    delete: noteQuery.data.sharedPermissions.includes("DELETE"),
+                                    edit: noteQuery.data.sharedPermissions.includes("EDIT") && !noteQuery.data.archived,
+                                    share: false,
+                                    archive: noteQuery.data.sharedPermissions.includes("ARCHIVE") && !noteQuery.data.archived,
+                                    unArchive: noteQuery.data.sharedPermissions.includes("ARCHIVE") && noteQuery.data.archived,
+                                }}
                             />
                         ) : (
                             <>

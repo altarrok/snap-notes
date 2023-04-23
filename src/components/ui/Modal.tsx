@@ -8,7 +8,7 @@ export const Modal: React.FC<Omit<ReactModalProps, "ariaHideApp" | "overlayClass
             {...reactModalProps}
             ariaHideApp={process.env.NODE_ENV !== "test"}
             overlayClassName="fixed inset-0 z-20 bg-transparent/75 flex justify-center items-center"
-            className="z-40 rounded-md bg-white p-4"
+            className="z-40 rounded-md bg-white p-4 relative"
         >
             {reactModalProps.children}
         </ReactModal>
