@@ -1,3 +1,4 @@
+import { NotePermission, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -6,25 +7,45 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
+const getAuthorizedNote = async (prisma: PrismaClient, noteId: string, userId: string, checkSharedPermissions?: NotePermission[]) => {
+    const targetNote = await prisma.note.findUniqueOrThrow({
+        where: {
+            id: noteId
+        }
+    });
+
+    // bypassing the owner check if the permission is shared
+    if (checkSharedPermissions) {
+        const checkPassed = checkSharedPermissions.reduce(
+            (isPassing, checkPermission) => isPassing && targetNote?.sharedPermissions.includes(checkPermission) ,
+            true
+        )
+        
+        if (checkPassed) {
+            return targetNote;
+        }
+    }
+
+    if (userId !== targetNote.userId) {
+
+        throw new Error("Unauthorized")
+    }
+
+    return targetNote;
+}
+
 export const noteRouter = createTRPCRouter({
     upsert: protectedProcedure
         .input(z.object({
             noteId: z.string().optional(),
             title: z.string().min(2).max(24),
             content: z.string().max(400),
-            tags: z.string().array()
+            tags: z.string().array(),
+            sharedPermissions: z.nativeEnum(NotePermission).array().optional()
         }))
         .mutation(async ({ input, ctx }) => {
             if (input.noteId) {
-                const noteOwnerUserId = (await ctx.prisma.note.findUnique({
-                    where: {
-                        id: input.noteId
-                    }
-                }))?.userId
-
-                if (ctx.session.user.id !== noteOwnerUserId) {
-                    throw new Error("Unauthorized")
-                }
+                await getAuthorizedNote(ctx.prisma, input.noteId, ctx.session.user.id, ["EDIT"]);
             }
 
             return ctx.prisma.note.upsert({
@@ -55,6 +76,7 @@ export const noteRouter = createTRPCRouter({
                     title: input.title,
                     content: input.content,
                     userId: ctx.session.user.id,
+                    sharedPermissions: input.sharedPermissions,
                     tags: {
                         deleteMany: {},
                         connectOrCreate: input.tags.map(tag => ({
@@ -153,32 +175,28 @@ export const noteRouter = createTRPCRouter({
         }),
     getById: publicProcedure
         .input(z.object({
-            noteId: z.string()
+            noteId: z.string().optional()
         }))
         .query(async ({ input, ctx }) => {
-            return await ctx.prisma.note.findUnique({
-                where: {
-                    id: input.noteId
-                },
-                include: {
-                    tags: true
-                }
-            })
+            if (input.noteId) {
+                return await ctx.prisma.note.findUnique({
+                    where: {
+                        id: input.noteId
+                    },
+                    include: {
+                        tags: true,
+                    }
+                })
+            }
+
+            return null;
         }),
     delete: protectedProcedure
         .input(z.object({
             noteId: z.string()
         }))
         .mutation(async ({ input, ctx }) => {
-            const targetNoteOwnerId = (await ctx.prisma.note.findUnique({
-                where: {
-                    id: input.noteId
-                }
-            }))?.userId
-
-            if (ctx.session.user.id !== targetNoteOwnerId) {
-                throw new Error("Unauthorized")
-            }
+            await getAuthorizedNote(ctx.prisma, input.noteId, ctx.session.user.id, ["DELETE"]);
 
             return ctx.prisma.note.delete({
                 where: {
@@ -191,15 +209,7 @@ export const noteRouter = createTRPCRouter({
             noteId: z.string()
         }))
         .mutation(async ({ input, ctx }) => {
-            const targetNote = await ctx.prisma.note.findUnique({
-                where: {
-                    id: input.noteId
-                }
-            });
-
-            if (ctx.session.user.id !== targetNote?.userId) {
-                throw new Error("Unauthorized")
-            }
+            const targetNote = await getAuthorizedNote(ctx.prisma, input.noteId, ctx.session.user.id, ["ARCHIVE"]);
 
             return ctx.prisma.note.update({
                 data: {

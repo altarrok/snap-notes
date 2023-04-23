@@ -1,15 +1,23 @@
+import { useContext, useEffect } from "react";
 import { CreateNoteForm } from "../create-note"
 import { api } from "~/utils/api";
 import { Spinner } from "../ui/Spinner";
-import { useEffect } from "react";
+import { SignInOutModalContext } from "../auth/SignInOutModalContext";
 
 export const EditNoteWidget: React.FC<{ noteId: string, previousTitle: string, previousContent: string, previousTags: string[], onSuccess?: () => void, onExit?: () => void }> = ({ noteId, previousTitle, previousContent, previousTags, onSuccess, onExit }) => {
     const utils = api.useContext();
+    const { setIsSignInOutModalOpen } = useContext(SignInOutModalContext);
     const updateNoteMutation = api.note.upsert.useMutation({
         async onSuccess() {
             await utils.note.getWithCursor.refetch();
+            await utils.note.getById.refetch();
             await utils.tag.getCurrentUsersTags.invalidate();
-        }
+        },
+        onError(error) {
+            if (error.data?.code === "UNAUTHORIZED") {
+                setIsSignInOutModalOpen(true);
+            }
+        },
     });
 
     useEffect(() => {
