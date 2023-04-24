@@ -49,7 +49,6 @@ model User {
     emailVerified DateTime?
     image         String?
     notes         Note[]
-    tags          Tag[]
     accounts      Account[]
     sessions      Session[]
 }
@@ -76,22 +75,16 @@ model Note {
 }
 
 model Tag {
-    userId String
-    name   String
-    user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    name   String        @id
     notes  TagsOnNotes[]
-
-    @@id([userId, name])
 }
 
 model TagsOnNotes {
     noteId String
-    userId String
     name   String
-    tag    Tag    @relation(fields: [userId, name], references: [userId, name], onDelete: Cascade)
+    tag    Tag    @relation(fields: [name], references: [name], onDelete: Cascade)
     Note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
-
-    @@id([noteId, userId, name])
+    @@id([noteId, name])
 }
 
 enum NotePermission {

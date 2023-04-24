@@ -17,10 +17,10 @@ const getAuthorizedNote = async (prisma: PrismaClient, noteId: string, userId: s
     // bypassing the owner check if the permission is shared
     if (checkSharedPermissions) {
         const checkPassed = checkSharedPermissions.reduce(
-            (isPassing, checkPermission) => isPassing && targetNote?.sharedPermissions.includes(checkPermission) ,
+            (isPassing, checkPermission) => isPassing && targetNote?.sharedPermissions.includes(checkPermission),
             true
         )
-        
+
         if (checkPassed) {
             return targetNote;
         }
@@ -58,14 +58,10 @@ export const noteRouter = createTRPCRouter({
                             tag: {
                                 connectOrCreate: {
                                     create: {
-                                        userId: ctx.session.user.id,
                                         name: tag,
                                     },
                                     where: {
-                                        userId_name: {
-                                            userId: ctx.session.user.id,
-                                            name: tag,
-                                        }
+                                        name: tag
                                     }
                                 }
                             }
@@ -84,22 +80,17 @@ export const noteRouter = createTRPCRouter({
                                 tag: {
                                     connectOrCreate: {
                                         create: {
-                                            userId: ctx.session.user.id,
                                             name: tag,
                                         },
                                         where: {
-                                            userId_name: {
-                                                userId: ctx.session.user.id,
-                                                name: tag,
-                                            }
+                                            name: tag,
                                         }
                                     }
                                 }
                             },
                             where: {
-                                noteId_userId_name: {
+                                noteId_name: {
                                     noteId: input.noteId || "",
-                                    userId: ctx.session.user.id,
                                     name: tag,
                                 }
                             }
