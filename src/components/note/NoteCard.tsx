@@ -29,6 +29,7 @@ export const NoteCard: React.FC<{
         async onSuccess() {
             await utils.note.getWithCursor.refetch();
             await utils.note.getById.refetch();
+            await utils.tag.getCurrentUsersTags.invalidate();
         },
         onError(error) {
             if (error.data?.code === "UNAUTHORIZED") {
