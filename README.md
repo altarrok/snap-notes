@@ -1,10 +1,10 @@
-# SnapNotes.io
+# SnapNotes
 
-SnapNotes.io is a simple and modern web application that allows users to create, edit, and share short notes with ease.
+SnapNotes is a simple and modern web application that allows users to create, edit, and share short notes with ease.
 
 ## Demo
 
-Experience SnapNotes.io in action! Visit our demo site [here](https://tubular-jalebi-775856.netlify.app) to explore the features and functionality.
+### Experience SnapNotes in action! Visit our demo site [here](https://tubular-jalebi-775856.netlify.app) to explore the features and functionality.
 
 ## Features
 
