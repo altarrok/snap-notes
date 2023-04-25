@@ -2,10 +2,14 @@ import { api } from "~/utils/api";
 import { TagFilter } from "./TagFilter";
 import { useContext } from "react";
 import { NotebookContext } from "../notebook/NotebookContext";
+import { useSession } from "next-auth/react";
 
 export const TagFilterWidget: React.FC = () => {
     const { notebookContextState, setNotebookContextState } = useContext(NotebookContext);
-    const usersTagsQuery = api.tag.getCurrentUsersTags.useQuery();
+    const { status } = useSession();
+    const usersTagsQuery = api.tag.getCurrentUsersTags.useQuery(undefined, {
+        enabled: status === "authenticated",
+    });
 
     return (
         <>

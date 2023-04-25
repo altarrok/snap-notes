@@ -1,4 +1,5 @@
 import { NotePermission, PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -15,7 +16,7 @@ const getAuthorizedNote = async (prisma: PrismaClient, noteId: string, userId: s
     });
 
     // bypassing the owner check if the permission is shared
-    if (checkSharedPermissions) {
+    if (checkSharedPermissions && targetNote.sharingEnabled) {
         const checkPassed = checkSharedPermissions.reduce(
             (isPassing, checkPermission) => isPassing && targetNote?.sharedPermissions.includes(checkPermission),
             true
@@ -41,7 +42,8 @@ export const noteRouter = createTRPCRouter({
             title: z.string().min(2).max(24),
             content: z.string().max(400),
             tags: z.string().array(),
-            sharedPermissions: z.nativeEnum(NotePermission).array().optional()
+            sharedPermissions: z.nativeEnum(NotePermission).array().optional(),
+            sharingEnabled: z.boolean().optional(),
         }))
         .mutation(async ({ input, ctx }) => {
             if (input.noteId) {
@@ -53,6 +55,7 @@ export const noteRouter = createTRPCRouter({
                     title: input.title,
                     content: input.content,
                     userId: ctx.session.user.id,
+                    sharingEnabled: input.sharingEnabled,
                     tags: {
                         create: input.tags.map(tag => ({
                             tag: {
@@ -73,6 +76,7 @@ export const noteRouter = createTRPCRouter({
                     content: input.content,
                     userId: ctx.session.user.id,
                     sharedPermissions: input.sharedPermissions,
+                    sharingEnabled: input.sharingEnabled,
                     tags: {
                         deleteMany: {},
                         connectOrCreate: input.tags.map(tag => ({
@@ -102,7 +106,7 @@ export const noteRouter = createTRPCRouter({
                 }
             });
         }),
-    getWithCursor: publicProcedure
+    getWithCursor: protectedProcedure
         .input(z.object({
             limit: z.number(),
             cursor: z.string().nullish(),
@@ -131,6 +135,7 @@ export const noteRouter = createTRPCRouter({
                 },
                 where: {
                     AND: {
+                        userId: ctx.session.user.id,
                         archived: !!input.archivedPosts,
                         ...(input.searchValue ? {
                             OR: [
@@ -170,14 +175,20 @@ export const noteRouter = createTRPCRouter({
         }))
         .query(async ({ input, ctx }) => {
             if (input.noteId) {
-                return await ctx.prisma.note.findUnique({
+                const note = await ctx.prisma.note.findUnique({
                     where: {
                         id: input.noteId
                     },
                     include: {
                         tags: true,
                     }
-                })
+                });
+
+                if (note && !note.sharingEnabled && ctx.session?.user.id !== note.userId) {
+                    throw new TRPCError({ code: "UNAUTHORIZED" })
+                }
+
+                return note;
             }
 
             return null;
