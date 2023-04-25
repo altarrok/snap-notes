@@ -11,9 +11,7 @@ export const tagRouter = createTRPCRouter({
                 where: {
                     notes: {
                         some: {
-                            Note: {
-                                userId: ctx.session.user.id
-                            }
+                            userId: ctx.session.user.id
                         }
                     }
                 }

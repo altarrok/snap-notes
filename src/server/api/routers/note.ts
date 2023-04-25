@@ -48,61 +48,47 @@ export const noteRouter = createTRPCRouter({
         .mutation(async ({ input, ctx }) => {
             if (input.noteId) {
                 await getAuthorizedNote(ctx.prisma, input.noteId, ctx.session.user.id, ["EDIT"]);
+
+                return ctx.prisma.note.update({
+                    data: {
+                        title: input.title,
+                        content: input.content,
+                        userId: ctx.session.user.id,
+                        sharedPermissions: input.sharedPermissions,
+                        sharingEnabled: input.sharingEnabled,
+                        tags: {
+                            connectOrCreate: input.tags.map(tag => ({
+                                create: {
+                                    name: tag
+                                },
+                                where: {
+                                    name: tag
+                                }
+                            }))
+                        },
+                    },
+                    where: {
+                        id: input.noteId,
+                    }
+                })
             }
 
-            return ctx.prisma.note.upsert({
-                create: {
+            return ctx.prisma.note.create({
+                data: {
                     title: input.title,
                     content: input.content,
                     userId: ctx.session.user.id,
                     sharingEnabled: input.sharingEnabled,
                     tags: {
-                        create: input.tags.map(tag => ({
-                            tag: {
-                                connectOrCreate: {
-                                    create: {
-                                        name: tag,
-                                    },
-                                    where: {
-                                        name: tag
-                                    }
-                                }
-                            }
-                        }))
-                    },
-                },
-                update: {
-                    title: input.title,
-                    content: input.content,
-                    userId: ctx.session.user.id,
-                    sharedPermissions: input.sharedPermissions,
-                    sharingEnabled: input.sharingEnabled,
-                    tags: {
-                        deleteMany: {},
                         connectOrCreate: input.tags.map(tag => ({
                             create: {
-                                tag: {
-                                    connectOrCreate: {
-                                        create: {
-                                            name: tag,
-                                        },
-                                        where: {
-                                            name: tag,
-                                        }
-                                    }
-                                }
+                                name: tag
                             },
                             where: {
-                                noteId_name: {
-                                    noteId: input.noteId || "",
-                                    name: tag,
-                                }
+                                name: tag
                             }
                         }))
                     },
-                },
-                where: {
-                    id: input.noteId || ""
                 }
             });
         }),
