@@ -8,9 +8,11 @@ import { SearchNoteDebouncedInput } from "../search-note/SearchNoteDebouncedInpu
 import { TagFilterWidget } from "../tag-filter/TagFilterWidget";
 import { SortSelector } from "../sort-selector/SortSelector";
 import { NotebookContext } from "./NotebookContext";
+import { useSession } from "next-auth/react";
 
 export const NotebookPage: React.FC = () => {
     const { notebookContextState } = useContext(NotebookContext);
+    const { status } = useSession();
 
     const { data, fetchNextPage, hasNextPage } = api.note.getWithCursor.useInfiniteQuery(
         {
@@ -22,6 +24,7 @@ export const NotebookPage: React.FC = () => {
         },
         {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
+            enabled: status === "authenticated",
         }
     );
     const loadMoreRef = useCallback((node: Element | null) => {

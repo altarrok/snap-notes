@@ -69,14 +69,15 @@ model Note {
     archived          Boolean          @default(false)
     user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
     tags              TagsOnNotes[]
+    sharingEnabled    Boolean          @default(false)
     sharedPermissions NotePermission[] @default([])
     createdAt         DateTime         @default(now()) @db.Timestamptz(3)
     updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
 }
 
 model Tag {
-    name   String        @id
-    notes  TagsOnNotes[]
+    name  String        @id
+    notes TagsOnNotes[]
 }
 
 model TagsOnNotes {
@@ -84,6 +85,7 @@ model TagsOnNotes {
     name   String
     tag    Tag    @relation(fields: [name], references: [name], onDelete: Cascade)
     Note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
     @@id([noteId, name])
 }
 
