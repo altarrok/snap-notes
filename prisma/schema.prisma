@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-    provider = "postgresql"
+    provider = "mongodb"
     // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -17,8 +17,8 @@ datasource db {
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
+    id                String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId            String  @db.ObjectId
     type              String
     provider          String
     providerAccountId String
@@ -35,15 +35,15 @@ model Account {
 }
 
 model Session {
-    id           String   @id @default(cuid())
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
     sessionToken String   @unique
-    userId       String
+    userId       String   @db.ObjectId
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String    @id @default(auto()) @map("_id") @db.ObjectId
     name          String?
     email         String?   @unique
     emailVerified DateTime?
@@ -53,40 +53,25 @@ model User {
     sessions      Session[]
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
-
-    @@unique([identifier, token])
-}
-
 model Note {
-    id                String           @id @default(cuid())
-    userId            String
+    id                String           @id @default(auto()) @map("_id") @db.ObjectId
+    userId            String           @db.ObjectId
     title             String
     content           String
     archived          Boolean          @default(false)
     user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    tags              TagsOnNotes[]
+    tagNames          String[]
+    tags              Tag[]            @relation(fields: [tagNames], references: [name])
     sharingEnabled    Boolean          @default(false)
     sharedPermissions NotePermission[] @default([])
-    createdAt         DateTime         @default(now()) @db.Timestamptz(3)
-    updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
+    createdAt         DateTime         @default(now())
+    updatedAt         DateTime         @updatedAt
 }
 
 model Tag {
-    name  String        @id
-    notes TagsOnNotes[]
-}
-
-model TagsOnNotes {
-    noteId String
-    name   String
-    tag    Tag    @relation(fields: [name], references: [name], onDelete: Cascade)
-    Note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
-
-    @@id([noteId, name])
+    name    String   @id @map("_id")
+    noteIds String[] @db.ObjectId
+    notes   Note[]   @relation(fields: [noteIds], references: [id])
 }
 
 enum NotePermission {
