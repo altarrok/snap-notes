@@ -17,7 +17,7 @@ export const SignInOutModal: React.FC = () => {
             <div>
                 <button
                     className="flex items-center border border-solid border-gray-400"
-                    onClick={() => signIn("google")}
+                    onClick={() => void signIn("google")}
                 >
                     <i className="w-12 inline-block  border-r border-r-solid border-r-gray-400">
                         <GoogleIcon />

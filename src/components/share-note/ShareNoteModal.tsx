@@ -30,9 +30,9 @@ export const ShareNoteModal: React.FC<
         setSuccess(false)
         if (typeof document !== "undefined") {
             const { origin, pathname } = new URL(document.URL);
-            return `${origin}${pathname}note/${shareModalNoteId}`;
+            return `${origin}${pathname}note/${shareModalNoteId || 'ERROR'}`;
         } else {
-            return `/${shareModalNoteId}`
+            return `/${shareModalNoteId || 'ERROR'}`
         }
     }, [shareModalNoteId])
 
@@ -111,10 +111,7 @@ export const ShareNoteModal: React.FC<
                         <span className="rounded-l-md bg-zinc-200 border-2 border-solid border-gray-400 p-2 text-zinc-400">{shareLink}</span>
                         <button
                             className="rounded-r-md border-gray-400 border-solid border-2 border-l-0 px-2 flex items-center hover:bg-cyan-100 transition-colors"
-                            onClick={async () => {
-                                await navigator.clipboard.writeText(shareLink);
-                                setSuccess(true);
-                            }}
+                            onClick={() => void navigator.clipboard.writeText(shareLink).then(() => setSuccess(true))}
                         >
                             <MdContentCopy className="mr-1" />{isSuccess ? "Copied" : "Copy"}
                         </button>

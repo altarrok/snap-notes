@@ -62,7 +62,7 @@ export const AddTagInput: React.FC<{ tagOptions: string[], defaultValue?: string
                                     title={tagOption}
                                     key={i}
                                     value={tagOption}
-                                    className={`cursor-pointer hover:bg-gray-200 py-2 px-4 rounded-xl overflow-x-hidden text-ellipsis ${query === tagOption && !tagOptions.includes(tagOption) && 'bg-green-200 hover:bg-green-100'}`}
+                                    className={`cursor-pointer hover:bg-gray-200 py-2 px-4 rounded-xl overflow-x-hidden text-ellipsis ${query === tagOption && !tagOptions.includes(tagOption) ? 'bg-green-200 hover:bg-green-100' : ''}`}
                                 >
                                     {tagOption}
                                 </Combobox.Option>

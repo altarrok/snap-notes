@@ -22,5 +22,5 @@ export const defaultNotebookContextState: TNotebookContextState = {
 
 export const NotebookContext = createContext<TNotebookContext>({
     notebookContextState: defaultNotebookContextState,
-    setNotebookContextState: () => {}
+    setNotebookContextState: () => { console.error("Programming error in NotebookContext")}
 })

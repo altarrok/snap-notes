@@ -28,7 +28,7 @@ export const TagFilter: React.FC<{
                             {({ selected }) => (
                                 <li
                                     title={tag}
-                                    className={`min-w-max text-ellipsis overflow-x-hidden hover:bg-gray-200 transition-colors p-2 cursor-pointer rounded-md my-2 ${selected && 'bg-green-300 hover:bg-green-200'}`}
+                                    className={`min-w-max text-ellipsis overflow-x-hidden hover:bg-gray-200 transition-colors p-2 cursor-pointer rounded-md my-2 ${selected ? 'bg-green-300 hover:bg-green-200' : ''}`}
                                 >
                                     {tag}
                                 </li>

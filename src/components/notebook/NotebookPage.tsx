@@ -31,7 +31,7 @@ export const NotebookPage: React.FC = () => {
         if (node !== null) {
             new IntersectionObserver(([entry]) => {
                 if (entry && entry.isIntersecting) {
-                    fetchNextPage();
+                    void fetchNextPage();
                 }
             }, {
                 rootMargin: "0px",

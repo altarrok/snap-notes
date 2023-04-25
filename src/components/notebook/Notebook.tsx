@@ -15,13 +15,13 @@ export const Notebook: React.FC = () => {
         <NotebookContext.Provider value={notebookContextValue}>
             <div className="flex items-center">
                 <button
-                    className={`text-2xl flex items-center gap-2 p-2 transition-colors ${notebookContextState.selectedPage === "NOTES" && 'bg-blue-200'}`}
+                    className={`text-2xl flex items-center gap-2 p-2 transition-colors ${notebookContextState.selectedPage === "NOTES" ? 'bg-blue-200' : ''}`}
                     onClick={() => setNotebookContextState((prevState) => ({ ...prevState, selectedPage: "NOTES" }))}
                 >
                     <MdNotes /> Notes
                 </button>
                 <button
-                    className={`text-2xl flex items-center gap-2 p-2 transition-colors ${notebookContextState.selectedPage === "ARCHIVED" && 'bg-blue-200'}`}
+                    className={`text-2xl flex items-center gap-2 p-2 transition-colors ${notebookContextState.selectedPage === "ARCHIVED" ? 'bg-blue-200' : ''}`}
                     onClick={() => setNotebookContextState((prevState) => ({ ...prevState, selectedPage: "ARCHIVED" }))}
                 >
                     <MdArchive /> Archived

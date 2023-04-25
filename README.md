@@ -1,3 +1,20 @@
+# SnapNotes.io
+
+SnapNotes.io is a simple and modern web application that allows users to create, edit, and share short notes with ease.
+
+## Demo
+
+Experience SnapNotes.io in action! Visit our demo site [here](https://tubular-jalebi-775856.netlify.app) to explore the features and functionality.
+
+## Features
+
+- User authentication with Google OAuth
+- Create, edit, and delete notes
+- Share notes with customizable permissions
+- Search and filter notes
+- Tag and sort notes
+- Archive notes
+
 # Technical Requirements Document
 
 ## Project: Simple Web Application for Creating and Sharing Short Notes
@@ -5,8 +22,6 @@
 ### Overview
 
 The goal of this project is to develop a simple web application that allows users to create and share short notes. The application will provide features for user authentication, creating, editing, and deleting notes, sharing notes, searching notes, tagging notes, sorting notes, archiving notes, collaboration, reminders, access control, and exporting notes.
-
-### Features and Acceptance Criteria
 
 1. **User Authentication and Registration**
     - Users can register for an account with a valid email and password
@@ -75,8 +90,6 @@ The application will be developed as a web application using the following techn
 
 ### Security Considerations
 
-- User passwords must be stored securely using proper hashing and salting techniques
-- User authentication should be implemented using secure methods like JSON Web Tokens (JWT) or OAuth
 - User input must be validated and sanitized on both the client and server side to prevent SQL injections, cross-site scripting (XSS), and other security vulnerabilities
 - Secure connections (HTTPS) should be used to encrypt data transmission between the client and server
 - Proper access control mechanisms should be in place to ensure that users can only access and modify their own notes and shared notes they have permission to edit
