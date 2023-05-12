@@ -57,6 +57,7 @@ export const noteRouter = createTRPCRouter({
                         sharedPermissions: input.sharedPermissions,
                         sharingEnabled: input.sharingEnabled,
                         tags: {
+                            set: [],
                             connectOrCreate: input.tags.map(tag => ({
                                 create: {
                                     name: tag
